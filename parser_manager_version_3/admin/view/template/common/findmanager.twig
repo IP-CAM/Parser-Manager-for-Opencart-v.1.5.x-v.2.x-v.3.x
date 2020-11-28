@@ -1,0 +1,69 @@
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Поиск товара</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+			{% if  items is  not empty %}
+			<table id='products' >
+				{% for item in items |slice(0,10)%}
+					<tr>
+							<td style='width:15%;'>
+								<img src='{{item.src}}'>
+							</td>
+							<td style='width:65%;'>
+								<a href='{{item.href}}' target='_blank'>{{item.title}}</a><br>
+								{{item.desc}}
+								<br>Цена:{{item.price}}
+							</td>
+							<td style='width:10%;'>
+								<button name = "{{product_id}}" type="button" class="btn btn-primary pull-center" data-dismiss="modal" onclick="addUrl('{{product_id}}', '{{item.urlencode_href}}')">Выбрать</button>
+							</td>
+						</tr>	
+				
+							
+				{% endfor %}
+				</table>
+			{% else %}
+				<div class="col-sm-10">
+                <h4>Товаров не найдено!!!</h4>
+				</div>
+			{%endif%}
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function addUrl(product_id, url_parsing) {
+		if(product_id==0){
+			
+		}
+		
+        $.ajax({
+            type: "POST",
+            data: "product_id="+product_id+"&url="+url_parsing,
+            url: "index.php?route=extension/module/parsermanager/addUrl&user_token={{ user_token }}",
+            dataType: "html",
+            success: function(msg){
+                if (msg == '')
+                    msg = decodeURIComponent(url_parsing);			   
+				$('td[name=product_'+product_id+'] div.add-url-product').remove();
+				$('td[name=product_'+product_id+']').append("<div  class='delete_url' ><a class='btn btn-default' href='"+msg+"' target='_blank'>"+msg.substring(0,20)+"..."+msg.substring(msg.length-10)+"</a><input type='hidden' name='parse_url["+product_id+"]' value='"+msg+"'><div style='float:right;'><a  class='btn btn-danger' title='Удалить ссылку' onclick='deleteUrl(" + product_id + ");'><i class='fa fa-trash-o'/> </i></a></div></div>")
+				//$('#modal-image').remove();
+            },
+            error: function(){
+                alert('error');
+
+            }
+        });
+
+    }
+
+
+
+</script>
